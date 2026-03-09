@@ -10,6 +10,9 @@ from PIL import Image
 import io
 import time
 
+
+ADMIN_PASSWORD = "1234"
+
 # -----------------------------
 # Supabase connection
 # -----------------------------
@@ -167,6 +170,37 @@ for i, file in enumerate(page_files, start=start):
         after_url = f"{SUPABASE_URL}/storage/v1/object/public/{bucket}/{service}/after/{after_name}"
 
         st.image(after_url)
+
+
+        # -----------------------------
+        # Delete photo section
+        # -----------------------------
+
+        delete_pressed = st.button(
+            "🗑 Delete Photo",
+            key=f"delete_{service}_{defect_id}"
+        )
+
+        if delete_pressed:
+
+            password = st.text_input(
+                "Enter supervisor password",
+                type="password",
+                key=f"pw_{service}_{defect_id}"
+            )
+
+            if password == ADMIN_PASSWORD:
+
+                supabase.storage.from_(bucket).remove(
+                    [f"{service}/after/{after_name}"]
+                )
+
+                st.success("Photo deleted")
+
+                st.rerun()
+
+            elif password != "":
+                st.error("Incorrect password")
 
     # -----------------------------
     # Button to activate camera
