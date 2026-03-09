@@ -25,14 +25,9 @@ bucket = "defect-photos"
 # Page setup
 # -----------------------------
 
-st.set_page_config(
-    page_title="Defect Checklist",
-    page_icon="📋",
-    layout="centered"
-)
+st.set_page_config(page_title="Defect Checklist", page_icon="📋")
 
 st.title("Syed Alwi Pumping Station")
-st.subheader("Defect Checklist")
 
 # -----------------------------
 # Image compression
@@ -44,24 +39,23 @@ def compress_image(uploaded_file):
     image = image.convert("RGB")
 
     buffer = io.BytesIO()
+
     image.save(buffer, format="JPEG", quality=75, optimize=True)
 
     return buffer.getvalue()
 
 # -----------------------------
-# Get services automatically
+# Detect services automatically
 # -----------------------------
 
 services = supabase.storage.from_(bucket).list()
 service_names = [s["name"] for s in services]
 
 # -----------------------------
-# Calculate progress summary
+# Progress Summary
 # -----------------------------
 
-st.markdown("### Defect Progress")
-
-progress_text = ""
+st.subheader("Defect Progress")
 
 for svc in service_names:
 
@@ -75,9 +69,7 @@ for svc in service_names:
         for f in after_files if f["name"].startswith("defect_")
     ]))
 
-    progress_text += f"**{svc}: {cleared} / {total} defects cleared**  \n"
-
-st.markdown(progress_text)
+    st.write(f"**{svc}: {cleared} / {total} defects cleared**")
 
 st.divider()
 
@@ -85,24 +77,19 @@ st.divider()
 # Select service
 # -----------------------------
 
-service = st.selectbox(
-    "Select Service",
-    service_names
-)
+service = st.selectbox("Select Service", service_names)
 
 # -----------------------------
-# Load files
+# Load defects
 # -----------------------------
 
-with st.spinner("Loading defects..."):
+before_files = supabase.storage.from_(bucket).list(f"{service}/before/")
+before_files = sorted(before_files, key=lambda x: x["name"])
 
-    before_files = supabase.storage.from_(bucket).list(f"{service}/before/")
-    before_files = sorted(before_files, key=lambda x: x["name"])
-
-    after_files = supabase.storage.from_(bucket).list(f"{service}/after/")
+after_files = supabase.storage.from_(bucket).list(f"{service}/after/")
 
 # -----------------------------
-# Build after photo dictionary
+# Build AFTER dictionary
 # -----------------------------
 
 after_dict = {}
@@ -133,13 +120,7 @@ items_per_page = 10
 total_defects = len(before_files)
 total_pages = (total_defects - 1) // items_per_page + 1
 
-page = st.number_input(
-    "Page",
-    min_value=1,
-    max_value=total_pages,
-    value=1,
-    step=1
-)
+page = st.number_input("Page", min_value=1, max_value=total_pages, value=1)
 
 start = (page - 1) * items_per_page
 end = start + items_per_page
@@ -147,11 +128,11 @@ end = start + items_per_page
 page_files = before_files[start:end]
 
 # -----------------------------
-# Upload lock
+# Session state for camera
 # -----------------------------
 
-if "uploaded" not in st.session_state:
-    st.session_state.uploaded = {}
+if "active_camera" not in st.session_state:
+    st.session_state.active_camera = None
 
 # -----------------------------
 # Display defects
@@ -172,39 +153,34 @@ for i, file in enumerate(page_files, start=start):
 
     before_url = f"{SUPABASE_URL}/storage/v1/object/public/{bucket}/{service}/before/{file['name']}"
 
-    st.markdown("**Before Photo**")
-    st.image(before_url, use_column_width=True)
+    st.image(before_url)
 
-    # -----------------------------
-    # Show after photo
-    # -----------------------------
-
+    # show after photo
     if defect_id in after_dict:
 
         after_name = after_dict[defect_id]["name"]
 
         after_url = f"{SUPABASE_URL}/storage/v1/object/public/{bucket}/{service}/after/{after_name}"
 
-        st.markdown("**After Photo**")
-        st.image(after_url, use_column_width=True)
+        st.image(after_url)
 
     # -----------------------------
-    # Camera button
+    # Button to activate camera
     # -----------------------------
 
-    take_photo = st.button(
-        "📷 Take / Replace Photo",
-        key=f"btn_{service}_{i}"
-    )
+    if st.button("📷 Take / Replace Photo", key=f"btn_{service}_{i}"):
 
-    if take_photo:
+        st.session_state.active_camera = defect_id
 
-        photo = st.camera_input(
-            "Take Photo",
-            key=f"cam_{service}_{i}"
-        )
+    # -----------------------------
+    # Show camera only if activated
+    # -----------------------------
 
-        if photo and defect_id not in st.session_state.uploaded:
+    if st.session_state.active_camera == defect_id:
+
+        photo = st.camera_input("Take Photo", key=f"cam_{service}_{i}")
+
+        if photo:
 
             compressed = compress_image(photo)
 
@@ -216,9 +192,9 @@ for i, file in enumerate(page_files, start=start):
                 {"content-type": "image/jpeg", "upsert": True}
             )
 
-            st.session_state.uploaded[defect_id] = True
+            st.success("Photo uploaded")
 
-            st.success("Photo uploaded successfully")
+            st.session_state.active_camera = None
 
             st.rerun()
 
