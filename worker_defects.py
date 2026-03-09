@@ -134,6 +134,24 @@ end = start + items_per_page
 
 page_files = before_files[start:end]
 
+
+## Top Navigation
+
+st.write(f"Page {st.session_state.page} of {total_pages}")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    if st.button("⬅ Previous Page", key="top_prev") and st.session_state.page > 1:
+        st.session_state.page -= 1
+        st.rerun()
+
+with col2:
+    if st.button("Next Page ➡", key="top_next") and st.session_state.page < total_pages:
+        st.session_state.page += 1
+        st.rerun()
+
+
 # -----------------------------
 # Session state for camera
 # -----------------------------
