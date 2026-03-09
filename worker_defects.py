@@ -189,8 +189,9 @@ for i, file in enumerate(page_files, start=start):
             supabase.storage.from_(bucket).upload(
                 filename,
                 compressed,
-                {"content-type": "image/jpeg", "upsert": True}
+                file_options={"content-type": "image/jpeg"}
             )
+
 
             st.success("Photo uploaded")
 
