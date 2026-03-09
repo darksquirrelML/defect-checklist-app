@@ -120,7 +120,11 @@ items_per_page = 10
 total_defects = len(before_files)
 total_pages = (total_defects - 1) // items_per_page + 1
 
-page = st.number_input("Page", min_value=1, max_value=total_pages, value=1)
+# Initialize page state
+if "page" not in st.session_state:
+    st.session_state.page = 1
+
+page = st.session_state.page
 
 start = (page - 1) * items_per_page
 end = start + items_per_page
@@ -205,4 +209,17 @@ for i, file in enumerate(page_files, start=start):
 
             st.rerun()
 
+    st.divider()
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        if st.button("⬅ Previous Page") and st.session_state.page > 1:
+            st.session_state.page -= 1
+            st.rerun()
+
+    with col2:
+        if st.button("Next Page ➡") and st.session_state.page < total_pages:
+            st.session_state.page += 1
+            st.rerun()        
 
