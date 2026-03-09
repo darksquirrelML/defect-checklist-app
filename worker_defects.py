@@ -182,6 +182,10 @@ for i, file in enumerate(page_files, start=start):
 
         if photo:
 
+            # prevent duplicate uploads
+            if st.session_state.get("last_upload") == defect_id:
+                st.stop()
+
             compressed = compress_image(photo)
 
             filename = f"{service}/after/defect_{defect_id}_{int(time.time())}.jpg"
@@ -192,10 +196,13 @@ for i, file in enumerate(page_files, start=start):
                 file_options={"content-type": "image/jpeg"}
             )
 
+            # mark this defect as uploaded
+            st.session_state.last_upload = defect_id
 
             st.success("Photo uploaded")
 
             st.session_state.active_camera = None
 
             st.rerun()
+
 
