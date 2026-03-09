@@ -236,13 +236,27 @@ for i, file in enumerate(page_files, start=start):
     # Show camera only if activated
     # -----------------------------
 
+
     if st.session_state.active_camera == defect_id:
 
-        photo = st.camera_input("Take Photo", key=f"cam_{service}_{i}")
+        uploaded = st.file_uploader(
+            "Select Photo from Album",
+            type=["jpg","jpeg","png"],
+            key=f"upload_{service}_{i}"
+        )
 
-        if photo:
+        photo = st.camera_input("Or Take Photo", key=f"cam_{service}_{i}")
 
-            compressed = compress_image(photo)
+        file = None
+
+        if uploaded:
+            file = uploaded
+        elif photo:
+            file = photo
+
+        if file:
+
+            compressed = compress_image(file)
 
             filename = f"{service}/after/defect_{defect_id}_{int(time.time())}.jpg"
 
@@ -272,7 +286,6 @@ for i, file in enumerate(page_files, start=start):
             st.session_state.active_camera = None
 
             st.rerun()
-
 
 st.divider()
 
