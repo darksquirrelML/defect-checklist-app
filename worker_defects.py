@@ -44,17 +44,46 @@ def compress_image(uploaded_file):
     image = image.convert("RGB")
 
     buffer = io.BytesIO()
-
     image.save(buffer, format="JPEG", quality=75, optimize=True)
 
     return buffer.getvalue()
 
 # -----------------------------
-# Detect services automatically
+# Get services automatically
 # -----------------------------
 
 services = supabase.storage.from_(bucket).list()
 service_names = [s["name"] for s in services]
+
+# -----------------------------
+# Calculate progress summary
+# -----------------------------
+
+st.markdown("### Defect Progress")
+
+progress_text = ""
+
+for svc in service_names:
+
+    before_files = supabase.storage.from_(bucket).list(f"{svc}/before/")
+    after_files = supabase.storage.from_(bucket).list(f"{svc}/after/")
+
+    total = len(before_files)
+
+    cleared = len(set([
+        f["name"].split("_")[1]
+        for f in after_files if f["name"].startswith("defect_")
+    ]))
+
+    progress_text += f"**{svc}: {cleared} / {total} defects cleared**  \n"
+
+st.markdown(progress_text)
+
+st.divider()
+
+# -----------------------------
+# Select service
+# -----------------------------
 
 service = st.selectbox(
     "Select Service",
@@ -62,7 +91,7 @@ service = st.selectbox(
 )
 
 # -----------------------------
-# Load BEFORE photos
+# Load files
 # -----------------------------
 
 with st.spinner("Loading defects..."):
@@ -73,7 +102,7 @@ with st.spinner("Loading defects..."):
     after_files = supabase.storage.from_(bucket).list(f"{service}/after/")
 
 # -----------------------------
-# Build AFTER photo dictionary
+# Build after photo dictionary
 # -----------------------------
 
 after_dict = {}
@@ -118,6 +147,13 @@ end = start + items_per_page
 page_files = before_files[start:end]
 
 # -----------------------------
+# Upload lock
+# -----------------------------
+
+if "uploaded" not in st.session_state:
+    st.session_state.uploaded = {}
+
+# -----------------------------
 # Display defects
 # -----------------------------
 
@@ -127,10 +163,10 @@ for i, file in enumerate(page_files, start=start):
 
     st.divider()
 
+    status = "❌ Pending"
+
     if defect_id in after_dict:
         status = "✅ Completed"
-    else:
-        status = "❌ Pending"
 
     st.markdown(f"### Defect {defect_id}   {status}")
 
@@ -140,7 +176,7 @@ for i, file in enumerate(page_files, start=start):
     st.image(before_url, use_column_width=True)
 
     # -----------------------------
-    # Show AFTER photo if exists
+    # Show after photo
     # -----------------------------
 
     if defect_id in after_dict:
@@ -153,27 +189,36 @@ for i, file in enumerate(page_files, start=start):
         st.image(after_url, use_column_width=True)
 
     # -----------------------------
-    # Upload / Replace photo
+    # Camera button
     # -----------------------------
 
-    photo = st.camera_input(
-        "📷 Upload / Replace After Photo",
-        key=f"{service}_{i}"
+    take_photo = st.button(
+        "📷 Take / Replace Photo",
+        key=f"btn_{service}_{i}"
     )
 
-    if photo:
+    if take_photo:
 
-        compressed = compress_image(photo)
-
-        filename = f"{service}/after/defect_{defect_id}_{int(time.time())}.jpg"
-
-        supabase.storage.from_(bucket).upload(
-            filename,
-            compressed,
-            {"content-type": "image/jpeg"}
+        photo = st.camera_input(
+            "Take Photo",
+            key=f"cam_{service}_{i}"
         )
 
-        st.success("Photo uploaded successfully")
+        if photo and defect_id not in st.session_state.uploaded:
 
-        st.rerun()
+            compressed = compress_image(photo)
+
+            filename = f"{service}/after/defect_{defect_id}_{int(time.time())}.jpg"
+
+            supabase.storage.from_(bucket).upload(
+                filename,
+                compressed,
+                {"content-type": "image/jpeg", "upsert": True}
+            )
+
+            st.session_state.uploaded[defect_id] = True
+
+            st.success("Photo uploaded successfully")
+
+            st.rerun()
 
