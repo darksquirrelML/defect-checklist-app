@@ -171,17 +171,16 @@ for i, file in enumerate(page_files, start=start):
 
         st.image(after_url)
 
-
         # -----------------------------
         # Delete photo section
         # -----------------------------
 
-        delete_pressed = st.button(
-            "🗑 Delete Photo",
-            key=f"delete_{service}_{defect_id}"
-        )
+        if st.button("🗑 Delete Photo", key=f"delete_{service}_{defect_id}"):
 
-        if delete_pressed:
+            st.session_state[f"delete_confirm_{service}_{defect_id}"] = True
+
+
+        if st.session_state.get(f"delete_confirm_{service}_{defect_id}", False):
 
             password = st.text_input(
                 "Enter supervisor password",
@@ -191,16 +190,21 @@ for i, file in enumerate(page_files, start=start):
 
             if password == ADMIN_PASSWORD:
 
-                supabase.storage.from_(bucket).remove(
-                    [f"{service}/after/{after_name}"]
-                )
+                if st.button("Confirm Delete", key=f"confirm_{service}_{defect_id}"):
 
-                st.success("Photo deleted")
+                    supabase.storage.from_(bucket).remove(
+                        [f"{service}/after/{after_name}"]
+                    )
 
-                st.rerun()
+                    st.success("Photo deleted")
+
+                    st.session_state[f"delete_confirm_{service}_{defect_id}"] = False
+
+                    st.rerun()
 
             elif password != "":
                 st.error("Incorrect password")
+
 
     # -----------------------------
     # Button to activate camera
@@ -220,28 +224,37 @@ for i, file in enumerate(page_files, start=start):
 
         if photo:
 
-            # prevent duplicate uploads
-            if st.session_state.get("last_upload") == defect_id:
-                st.stop()
-
             compressed = compress_image(photo)
 
             filename = f"{service}/after/defect_{defect_id}_{int(time.time())}.jpg"
 
+            # --------------------------------
+            # Remove old photos of this defect
+            # --------------------------------
+            old_files = [
+                f"{service}/after/{f['name']}"
+                for f in after_files
+                if f["name"].startswith(f"defect_{defect_id}_")
+            ]
+
+            if old_files:
+                supabase.storage.from_(bucket).remove(old_files)
+
+            # --------------------------------
+            # Upload new photo
+            # --------------------------------
             supabase.storage.from_(bucket).upload(
                 filename,
                 compressed,
                 file_options={"content-type": "image/jpeg"}
             )
 
-            # mark this defect as uploaded
-            st.session_state.last_upload = defect_id
-
             st.success("Photo uploaded")
 
             st.session_state.active_camera = None
 
             st.rerun()
+
 
 st.divider()
 
