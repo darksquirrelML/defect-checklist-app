@@ -209,17 +209,17 @@ for i, file in enumerate(page_files, start=start):
 
             st.rerun()
 
-    st.divider()
+st.divider()
 
-    col1, col2 = st.columns(2)
+col1, col2 = st.columns(2)
 
-    with col1:
-        if st.button("⬅ Previous Page") and st.session_state.page > 1:
-            st.session_state.page -= 1
-            st.rerun()
+with col1:
+    if st.button("⬅ Previous Page") and st.session_state.page > 1:
+        st.session_state.page -= 1
+        st.rerun()
 
-    with col2:
-        if st.button("Next Page ➡") and st.session_state.page < total_pages:
-            st.session_state.page += 1
-            st.rerun()        
+with col2:
+    if st.button("Next Page ➡") and st.session_state.page < total_pages:
+        st.session_state.page += 1
+        st.rerun()        
 
