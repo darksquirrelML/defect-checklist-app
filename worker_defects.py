@@ -24,6 +24,11 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 bucket = "defect-photos"
 
+@st.cache_data(ttl=10)
+def get_files(path):
+    return supabase.storage.from_(bucket).list(path)
+
+
 # -----------------------------
 # Page setup
 # -----------------------------
@@ -33,9 +38,6 @@ st.set_page_config(page_title="Defect Checklist", page_icon="📋")
 st.title("Syed Alwi Pumping Station")
 
 
-@st.cache_data(ttl=10)
-def get_files(path):
-    return supabase.storage.from_(bucket).list(path)
 
 
 # -----------------------------
