@@ -191,18 +191,7 @@ with col1:
         st.rerun()
 
 with col2:
-    new_page = st.number_input(
-        f"Page (1 - {total_pages})",
-        min_value=1,
-        max_value=total_pages,
-        value=st.session_state.page,
-        step=1,
-        key="page_jump"
-    )
-
-    if new_page != st.session_state.page:
-        st.session_state.page = new_page
-        st.rerun()
+    st.write(f"Page {st.session_state.page} of {total_pages}")
 
 with col3:
     if st.button("Next Page ➡", key="top_next") and st.session_state.page < total_pages:
