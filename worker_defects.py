@@ -24,9 +24,9 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 bucket = "defect-photos"
 
-@st.cache_data(ttl=10)
-def get_files(path):
-    return supabase.storage.from_(bucket).list(path)
+# @st.cache_data(ttl=10)
+# def get_files(path):
+#     return supabase.storage.from_(bucket).list(path)
 
 
 # -----------------------------
@@ -70,11 +70,11 @@ st.subheader("Defect Progress")
 
 for svc in service_names:
 
-    # before_files = supabase.storage.from_(bucket).list(f"{svc}/before/")
-    # after_files = supabase.storage.from_(bucket).list(f"{svc}/after/")
+    before_files = supabase.storage.from_(bucket).list(f"{svc}/before/")
+    after_files = supabase.storage.from_(bucket).list(f"{svc}/after/")
 
-    before_files = get_files(f"{svc}/before/")
-    after_files = get_files(f"{svc}/after/")    
+    # before_files = get_files(f"{svc}/before/")
+    # after_files = get_files(f"{svc}/after/")    
 
     total = len(before_files)
 
