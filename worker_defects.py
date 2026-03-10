@@ -209,7 +209,7 @@ with col2:
     if selected_page != st.session_state.page:
         st.session_state.page = selected_page
         st.session_state.page_selector = selected_page
-        st.rerun()
+        # st.rerun()
 
 # Next button
 with col3:
