@@ -73,8 +73,8 @@ for svc in service_names:
     # before_files = supabase.storage.from_(bucket).list(f"{svc}/before/")
     # after_files = supabase.storage.from_(bucket).list(f"{svc}/after/")
 
-    before_files = get_files(f"{service}/before/")
-    after_files = get_files(f"{service}/after/")    
+    before_files = get_files(f"{svc}/before/")
+    after_files = get_files(f"{svc}/after/")    
 
     total = len(before_files)
 
