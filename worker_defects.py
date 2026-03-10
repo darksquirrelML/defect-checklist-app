@@ -32,6 +32,12 @@ st.set_page_config(page_title="Defect Checklist", page_icon="📋")
 
 st.title("Syed Alwi Pumping Station")
 
+
+@st.cache_data(ttl=10)
+def get_files(path):
+    return supabase.storage.from_(bucket).list(path)
+
+
 # -----------------------------
 # Image compression
 # -----------------------------
@@ -62,8 +68,11 @@ st.subheader("Defect Progress")
 
 for svc in service_names:
 
-    before_files = supabase.storage.from_(bucket).list(f"{svc}/before/")
-    after_files = supabase.storage.from_(bucket).list(f"{svc}/after/")
+    # before_files = supabase.storage.from_(bucket).list(f"{svc}/before/")
+    # after_files = supabase.storage.from_(bucket).list(f"{svc}/after/")
+
+    before_files = get_files(f"{service}/before/")
+    after_files = get_files(f"{service}/after/")    
 
     total = len(before_files)
 
@@ -224,7 +233,8 @@ for i, file in enumerate(page_files, start=start):
 
     before_url = f"{SUPABASE_URL}/storage/v1/object/public/{bucket}/{service}/before/{file['name']}"
 
-    st.image(before_url)
+    # st.image(before_url)
+    st.image(before_url, use_container_width=True)
 
     # show after photo
     if defect_id in after_dict:
