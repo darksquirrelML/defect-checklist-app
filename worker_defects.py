@@ -193,19 +193,18 @@ with col1:
 # Page selector
 with col2:
 
-    if "page_jump" not in st.session_state:
-        st.session_state.page_jump = st.session_state.page
-
     selected_page = st.number_input(
         f"Page (1 - {total_pages})",
         min_value=1,
         max_value=total_pages,
         value=st.session_state.page,
-        step=1
+        step=1,
+        key="page_selector"
     )
 
     if selected_page != st.session_state.page:
         st.session_state.page = selected_page
+        st.rerun()
 
 # Next
 with col3:
