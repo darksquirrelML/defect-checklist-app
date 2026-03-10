@@ -185,18 +185,32 @@ page_files = before_files[start:end]
 
 col1, col2, col3 = st.columns([1,2,1])
 
+# Previous
 with col1:
     if st.button("⬅ Previous Page", key="top_prev") and st.session_state.page > 1:
         st.session_state.page -= 1
-        st.rerun()
 
+# Page selector
 with col2:
-    st.write(f"Page {st.session_state.page} of {total_pages}")
 
+    if "page_jump" not in st.session_state:
+        st.session_state.page_jump = st.session_state.page
+
+    selected_page = st.number_input(
+        f"Page (1 - {total_pages})",
+        min_value=1,
+        max_value=total_pages,
+        value=st.session_state.page,
+        step=1
+    )
+
+    if selected_page != st.session_state.page:
+        st.session_state.page = selected_page
+
+# Next
 with col3:
     if st.button("Next Page ➡", key="top_next") and st.session_state.page < total_pages:
         st.session_state.page += 1
-        st.rerun()
 
 # -----------------------------
 # Session state for camera
