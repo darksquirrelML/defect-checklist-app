@@ -9,7 +9,7 @@ from supabase import create_client
 from PIL import Image
 import io
 import time
-
+import zipfile
 
 ADMIN_PASSWORD = "1234"
 
@@ -114,6 +114,41 @@ for f in after_files:
                 "name": name,
                 "timestamp": timestamp
             }
+##################################################################################################################
+st.divider()
+st.subheader("Supervisor Download")
+
+password = st.text_input("Enter supervisor password", type="password", key="download_pw")
+
+if password == ADMIN_PASSWORD:
+
+    if st.button("⬇ Download All After Photos"):
+
+        zip_buffer = io.BytesIO()
+
+        with zipfile.ZipFile(zip_buffer, "w") as zip_file:
+
+            for f in after_files:
+
+                path = f"{service}/after/{f['name']}"
+
+                file_data = supabase.storage.from_(bucket).download(path)
+
+                zip_file.writestr(f["name"], file_data)
+
+        zip_buffer.seek(0)
+
+        st.download_button(
+            label="Download ZIP",
+            data=zip_buffer,
+            file_name=f"{service}_after_photos.zip",
+            mime="application/zip"
+        )
+
+elif password != "":
+    st.error("Incorrect password")
+
+#################################################################################################################################
 
 # -----------------------------
 # Pagination
