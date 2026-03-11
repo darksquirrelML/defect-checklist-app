@@ -182,6 +182,7 @@ with col1:
         st.rerun()
 
 # Page selector
+
 with col2:
     selected_page = st.number_input(
         f"Page (1 - {total_pages})",
@@ -192,6 +193,10 @@ with col2:
         key="page_selector"
     )    
 
+
+    if selected_page != st.session_state.page:
+        st.session_state.page = selected_page
+        st.rerun()
  
 
 # Next button
