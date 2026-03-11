@@ -179,7 +179,6 @@ col1, col2, col3 = st.columns([1,2,1])
 with col1:
     if st.button("⬅ Previous Page", key="top_prev") and st.session_state.page > 1:
         st.session_state.page -= 1
-        st.session_state.page_selector = st.session_state.page
         st.rerun()
 
 # Page selector
@@ -199,7 +198,7 @@ with col2:
 with col3:
     if st.button("Next Page ➡", key="top_next") and st.session_state.page < total_pages:
         st.session_state.page += 1
-        st.session_state.page_selector = st.session_state.page
+        
         st.rerun()
 
 
@@ -346,13 +345,13 @@ col1, col2 = st.columns(2)
 with col1:
     if st.button("⬅ Previous Page", key="bottom_prev") and st.session_state.page > 1:
         st.session_state.page -= 1
-        st.session_state.page_selector = st.session_state.page
+        
         st.rerun()
 
 with col2:
     if st.button("Next Page ➡", key="bottom_next") and st.session_state.page < total_pages:
         st.session_state.page += 1
-        st.session_state.page_selector = st.session_state.page
+        
         st.rerun()  
 
 
