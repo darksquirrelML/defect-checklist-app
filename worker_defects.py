@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
-
-
 import streamlit as st
 from supabase import create_client
 from PIL import Image
@@ -24,9 +18,6 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 bucket = "defect-photos"
 
-# @st.cache_data(ttl=10)
-# def get_files(path):
-#     return supabase.storage.from_(bucket).list(path)
 
 
 # -----------------------------
@@ -36,9 +27,6 @@ bucket = "defect-photos"
 st.set_page_config(page_title="Defect Checklist", page_icon="📋")
 
 st.title("Syed Alwi Pumping Station")
-
-
-
 
 # -----------------------------
 # Image compression
@@ -185,9 +173,7 @@ page_files = before_files[start:end]
 
 col1, col2, col3 = st.columns([1,2,1])
 
-# Initialize page selector
-if "page_selector" not in st.session_state:
-    st.session_state.page_selector = st.session_state.page
+
 
 # Previous button
 with col1:
@@ -202,14 +188,12 @@ with col2:
         f"Page (1 - {total_pages})",
         min_value=1,
         max_value=total_pages,
-        value=st.session_state.page_selector,
-        step=1
-    )
+        value=st.session_state.page,
+        step=1,
+        key="page_selector"
+    )    
 
-    if selected_page != st.session_state.page:
-        st.session_state.page = selected_page
-        st.session_state.page_selector = selected_page
-        st.rerun()
+ 
 
 # Next button
 with col3:
@@ -218,35 +202,6 @@ with col3:
         st.session_state.page_selector = st.session_state.page
         st.rerun()
 
-
-
-# col1, col2, col3 = st.columns([1,2,1])
-
-# # Previous
-# with col1:
-#     if st.button("⬅ Previous Page", key="top_prev") and st.session_state.page > 1:
-#         st.session_state.page -= 1
-
-# # Page selector
-# with col2:
-
-#     selected_page = st.number_input(
-#         f"Page (1 - {total_pages})",
-#         min_value=1,
-#         max_value=total_pages,
-#         value=st.session_state.page,
-#         step=1,
-#         key="page_selector"
-#     )
-
-#     if selected_page != st.session_state.page:
-#         st.session_state.page = selected_page
-#         st.rerun()
-
-# # Next
-# with col3:
-#     if st.button("Next Page ➡", key="top_next") and st.session_state.page < total_pages:
-#         st.session_state.page += 1
 
 # -----------------------------
 # Session state for camera
@@ -383,7 +338,7 @@ for i, file in enumerate(page_files, start=start):
             st.session_state.active_camera = None
 
             st.rerun()
-            
+
 st.divider()
 
 col1, col2 = st.columns(2)
@@ -398,5 +353,7 @@ with col2:
     if st.button("Next Page ➡", key="bottom_next") and st.session_state.page < total_pages:
         st.session_state.page += 1
         st.session_state.page_selector = st.session_state.page
-        st.rerun()
-        
+        st.rerun()  
+
+
+
