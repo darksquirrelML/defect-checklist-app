@@ -191,16 +191,15 @@ with col1:
         st.rerun()
 
 # Page selector
-
 with col2:
 
     selected_page = st.number_input(
         f"Page (1 - {total_pages})",
         min_value=1,
         max_value=total_pages,
-        value=st.session_state.page_selector,
+        value=st.session_state.page,
         step=1
-    )  
+    )
 
     if selected_page != st.session_state.page:
         st.session_state.page = selected_page
