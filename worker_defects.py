@@ -194,22 +194,6 @@ with col1:
         st.rerun()
 
 # Page selector
-# Page selector
-with col2:
-    selected_page = st.number_input(
-        f"Page (1 - {total_pages})",
-        min_value=1,
-        max_value=total_pages,
-        value=st.session_state.page_selector,
-        step=1
-    )
-
-    if selected_page != st.session_state.page:
-        st.session_state.page = selected_page
-        st.session_state.page_selector = selected_page
-        st.rerun()
-
-
 
 # with col2:
 #     selected_page = st.number_input(
@@ -221,17 +205,17 @@ with col2:
 #         key="page_selector"
 #     )    
 
-    # selected_page = st.number_input(
-    #     f"Page (1 - {total_pages})",
-    #     min_value=1,
-    #     max_value=total_pages,
-    #     value=st.session_state.page_selector,
-    #     step=1
-    # )
+    selected_page = st.number_input(
+        f"Page (1 - {total_pages})",
+        min_value=1,
+        max_value=total_pages,
+        value=st.session_state.page_selector,
+        step=1
+    )
 
-    # if selected_page != st.session_state.page:
-    #     st.session_state.page = selected_page
-    #     st.rerun()
+    if selected_page != st.session_state.page:
+        st.session_state.page = selected_page
+        st.rerun()
 
     # if selected_page != st.session_state.page:
     #     st.session_state.page = selected_page
