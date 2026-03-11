@@ -383,18 +383,20 @@ for i, file in enumerate(page_files, start=start):
             st.session_state.active_camera = None
 
             st.rerun()
-
+            
 st.divider()
 
 col1, col2 = st.columns(2)
 
 with col1:
-    if st.button("⬅ Previous Page") and st.session_state.page > 1:
+    if st.button("⬅ Previous Page", key="bottom_prev") and st.session_state.page > 1:
         st.session_state.page -= 1
+        st.session_state.page_selector = st.session_state.page
         st.rerun()
 
 with col2:
-    if st.button("Next Page ➡") and st.session_state.page < total_pages:
+    if st.button("Next Page ➡", key="bottom_next") and st.session_state.page < total_pages:
         st.session_state.page += 1
-        st.rerun()        
-
+        st.session_state.page_selector = st.session_state.page
+        st.rerun()
+        
