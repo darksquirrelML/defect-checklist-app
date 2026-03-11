@@ -200,13 +200,10 @@ with col2:
         max_value=total_pages,
         value=st.session_state.page_selector,
         step=1
-    )
-
-
+    )  
 
     if selected_page != st.session_state.page:
         st.session_state.page = selected_page
-        st.session_state.page_selector = selected_page
         st.rerun()
 
 # Next button
