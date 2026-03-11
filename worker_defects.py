@@ -195,7 +195,7 @@ with col1:
 
 # Page selector
 
-# with col2:
+with col2:
 #     selected_page = st.number_input(
 #         f"Page (1 - {total_pages})",
 #         min_value=1,
